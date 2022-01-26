@@ -35,8 +35,7 @@ endif()
 
 function( add_shader ARG_FILE )
 	# Parse arguments
-	cmake_parse_arguments( ARG "FRAGMENT;VERTEX;COMPUTE" "OUTPUT;GLSL_VERSION;DX9_MODEL;DX11_MODEL" "PLATFORMS" ${ARGN} )
-
+	cmake_parse_arguments( ARG "FRAGMENT;VERTEX;COMPUTE;VERBOSE" "OUTPUT;GLSL_VERSION;DX9_MODEL;DX11_MODEL" "PLATFORMS;INCLUDES;DEFINES" ${ARGN} )
 	# Get filename
 	get_filename_component( FILENAME "${ARG_FILE}" NAME_WE )
 
@@ -86,8 +85,13 @@ function( add_shader ARG_FILE )
 	set( BASE_OPTIONS
 		FILE ${ARG_FILE}
 		${TYPE}
-		INCLUDES ${BGFX_DIR}/src
+    INCLUDES ${BGFX_DIR}/src ${ARG_INCLUDES}
+    DEFINES ${ARG_DEFINES}
 	)
+
+  if( ARG_VERBOSE )
+    set( BASE_OPTIONS ${BASE_OPTIONS} VERBOSE ON )
+  endif()
 
 	# Parse profiles
 	set( DX9_PROFILE PROFILE ${D3D_PREFIX}_3_0 )
@@ -233,7 +237,7 @@ function( shaderc_parse ARG_OUT )
 	if( ARG_INCLUDES )
 		foreach( INCLUDE ${ARG_INCLUDES} )
 			list( APPEND CLI "-i" )
-			list( APPEND CLI "${INCLUDE}" )			
+			list( APPEND CLI "${INCLUDE}" )
 		endforeach()
 	endif()
 
